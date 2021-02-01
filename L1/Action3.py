@@ -8,12 +8,9 @@ import pandas as pd
 
 # 读取csv数据，清理'problem'字段格式，至data
 data = pd.read_csv('car_complain.csv')
-data['problem'] = data['problem'].str.rstrip(',')
 
-# 堆叠拆分'problem'字段，与data合并，为data_problem
-data_problem = data['problem'].str.split(',',expand=True).stack().to_frame()
-data_problem = data_problem.reset_index(level=1, drop=True).rename(columns={0:'problems'})
-data_problem = data.join(data_problem)
+# 拆分'problem'字段，与data合并，为data_problem
+data_problem = data.drop('problem',1).join(data['problem'].str.get_dummies(','))
 
 # 按'brand'分组，统计问题条目，为Stat_BP
 Stat_BP = data_problem.groupby('brand')['id'].count().reset_index().rename(columns={'id':'ProblemCount'})
